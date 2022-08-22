@@ -14,6 +14,7 @@ Import the libaries from the package
 ```{r}
 ## Import libraries
 library(genderizeR)
+library(dplyr)
 ```
 
 ```{r}
@@ -30,11 +31,25 @@ names$first_name <- sapply(strsplit(names$full_name, " "), `[`, 1)
 found_gender <- findGivenNames(names$first_name, apikey = 'db68688b402d65e8fb5f28674e7dada6', queryLength = 10, progress = TRUE,
 ssl.verifypeer = TRUE)
 ```
+Drop the duplicate:
+```{r}
+##names_of_interest <- names$first_name
+found <- found_gender[!duplicated(found_gender[ , c("name")]),]
+```
+
 Merge the names and the gender:
 ```{r}
-names$gender <- ifelse(names$first_name == found_gender$name, found_gender$gender, "")
+names <- 
+  transform(
+    names,
+    gender = 
+      ifelse(tolower(names$first_name) %in% found$name, found$gender, NA)
+  )
 ```
+
+Save data to csv
 ```{r}
-names_of_interest <- names$first_name
-found_gender_ <- found_gender[found_gender$n %in% names_of_interest,]
+write.csv(names, "names_gender.csv")
 ```
+
+End.
