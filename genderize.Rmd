@@ -1,0 +1,40 @@
+---
+title: "Genderize R Tool"
+author: "Musebe Ivan"
+date: '2022-08-22'
+output: html_document
+---
+
+The first step will be to import the genderize library. If first time, install the package:
+```{r}
+install.packages("genderizeR")
+```
+
+Import the libaries from the package
+```{r}
+## Import libraries
+library(genderizeR)
+```
+
+```{r}
+## Import data:
+names <- read.csv(file.choose())
+```
+
+```{r}
+## View names:
+names$first_name <- sapply(strsplit(names$full_name, " "), `[`, 1)
+```
+
+```{r}
+found_gender <- findGivenNames(names$first_name, apikey = 'db68688b402d65e8fb5f28674e7dada6', queryLength = 10, progress = TRUE,
+ssl.verifypeer = TRUE)
+```
+Merge the names and the gender:
+```{r}
+names$gender <- ifelse(names$first_name == found_gender$name, found_gender$gender, "")
+```
+```{r}
+names_of_interest <- names$first_name
+found_gender_ <- found_gender[found_gender$n %in% names_of_interest,]
+```
