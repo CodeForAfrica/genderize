@@ -1,0 +1,55 @@
+---
+title: "Genderize R Tool"
+author: "Musebe Ivan"
+date: '2022-08-22'
+output: html_document
+---
+
+The first step will be to import the genderize library. If first time, install the package:
+```{r}
+install.packages(c("genderizeR", "dplyr"))
+```
+
+Import the libraries from the package
+```{r}
+## Import libraries
+library(genderizeR)
+library(dplyr)
+```
+
+```{r}
+## Import data:
+names <- read.csv(file.choose())
+```
+
+```{r}
+## View names:
+names$first_name <- sapply(strsplit(names$full_name, " "), `[`, 1)
+```
+
+```{r}
+found_gender <- findGivenNames(names$first_name, apikey = 'db68688b402d65e8fb5f28674e7dada6', queryLength = 10, progress = TRUE,
+ssl.verifypeer = TRUE)
+```
+Drop the duplicate:
+```{r}
+##names_of_interest <- names$first_name
+found_gender <- found_gender[!duplicated(found_gender[ , c("name")]),]
+```
+
+Merge the names and the gender:
+```{r}
+names <- 
+  transform(
+    names,
+    gender = 
+      ifelse(tolower(names$first_name) %in% found_gender$name, found$gender, NA)
+  )
+```
+
+Save data to csv
+```{r}
+write.csv(names, "gender_results.csv")
+```
+
+End.
